@@ -1,0 +1,8 @@
+
+# Ignore environment folders
+
+code/py38-env/
+
+code/py-env/
+
+
