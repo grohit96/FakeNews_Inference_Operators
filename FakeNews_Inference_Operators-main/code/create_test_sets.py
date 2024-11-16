@@ -2,9 +2,8 @@ import numpy as np
 import json
 import os
 
-# Path to splits.json
 splits_json_path = '/scratch/rganesh5/PaperGraph_release_connected/News-Media-Reliability/data/acl2020/splits.json'
-# Directory to save the test set files
+
 output_dir = '/scratch/rganesh5/PaperGraph_release_connected'
 
 with open(splits_json_path, 'r') as f:
