@@ -9,7 +9,7 @@ import dgl
 from dgl.dataloading import DataLoader, MultiLayerFullNeighborSampler
 from sklearn.metrics import f1_score
 
-# Ensure reproducibility
+
 torch.manual_seed(0)
 np.random.seed(0)
 torch.backends.cudnn.deterministic = True
@@ -20,21 +20,19 @@ def evaluate_test_set(overall_graph, args):
     g = overall_graph._g[0]
     print("Loaded graph for evaluation.")
 
-    # Load model
     model_file = os.path.join(args.path_where_models_are, "best_at_dev_1.pth")
     print(f"Loading model: {model_file}")
     
     model = FakeNewsModel(
         in_features={'source': 778, 'user': 773, 'article': 768},
         hidden_features=128,
-        out_features=128,  # Ensure this matches the number of classes in training
+        out_features=128,  
         canonical_etypes=g.canonical_etypes,
         num_workers=args.num_workers,
         n_layers=2,
         conv_type='gcn'
     ).to(device)
 
-    # Load checkpoint
     state_dict = torch.load(model_file)
     print("Model Architecture:")
     for name, param in model.named_parameters():
@@ -50,13 +48,12 @@ def evaluate_test_set(overall_graph, args):
     model.eval()
     print("Model loaded and set to evaluation mode.")
 
-    # Load test set
+    
     test_set_path = os.path.join(args.path_where_graph_is, "test_set_1.npy")
     test_indices = np.load(test_set_path, allow_pickle=True)
     test_indices = torch.from_numpy(test_indices).to(device)
     print(f"Loaded test set with {len(test_indices)} samples.")
 
-    # Create DataLoader for the test set
     sampler = MultiLayerFullNeighborSampler(args.n_layers)
     test_dataloader = DataLoader(
         g,
@@ -67,7 +64,6 @@ def evaluate_test_set(overall_graph, args):
         drop_last=False
     )
 
-    # Perform evaluation
     total_acc = 0
     total_loss = 0
     count = 0
@@ -95,12 +91,10 @@ def evaluate_test_set(overall_graph, args):
             all_labels.extend(output_labels.cpu().numpy())
             all_predictions.extend(output_predictions.argmax(dim=1).cpu().numpy())
 
-    # Calculate metrics
     accuracy = total_acc / count
     loss = total_loss / count
     f1 = f1_score(all_labels, all_predictions, average='macro')
 
-    # Save results
     results = {
         "accuracy": accuracy,
         "loss": loss,
@@ -132,7 +126,6 @@ if __name__ == "__main__":
     torch.cuda.set_device(int(args.gpu))
     print("Using GPU:", args.gpu)
 
-    # Load the graph dataset
     from graph_helper_functions import FakeNewsDataset
     overall_graph = FakeNewsDataset(
         save_path=args.path_where_graph_is,
